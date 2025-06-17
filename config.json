@@ -1,57 +1,22 @@
-{
-    "drink": {
-        "pachinko": 35
-    },
-    "prizes": [
-        {
-            "medal": 1,
-            "number": 1,
-            "pachinko": 1
-        },
-        {
-            "medal": 1,
-            "number": 2,
-            "pachinko": 3
-        },
-        {
-            "medal": 1,
-            "number": 3,
-            "pachinko": 5
-        },
-        {
-            "medal": 3,
-            "number": 4,
-            "pachinko": 10
-        },
-        {
-            "medal": 4,
-            "number": 5,
-            "pachinko": 15
-        },
-        {
-            "medal": 5,
-            "number": 6,
-            "pachinko": 25
-        },
-        {
-            "medal": 7,
-            "number": 7,
-            "pachinko": 35
-        },
-        {
-            "medal": 8,
-            "number": 8,
-            "pachinko": 40
-        },
-        {
-            "medal": 9,
-            "number": 9,
-            "pachinko": 50
-        },
-        {
-            "medal": 10,
-            "number": 10,
-            "pachinko": 60
-        }
-    ]
-}
+[
+  { "number": 1, "type": "pachinko", "amount": 1 },
+  { "number": 2, "type": "pachinko", "amount": 5 },
+  { "number": 3, "type": "pachinko", "amount": 10 },
+  { "number": 4, "type": "pachinko", "amount": 15 },
+  { "number": 5, "type": "pachinko", "amount": 20 },
+  { "number": 6, "type": "pachinko", "amount": 25 },
+  { "number": 7, "type": "pachinko", "amount": 30 },
+  { "number": 8, "type": "pachinko", "amount": 35 },
+  { "number": 9, "type": "pachinko", "amount": 40 },
+  { "number": 10, "type": "pachinko", "amount": 45 },
+  { "number": 1, "type": "medal", "amount": 1 },
+  { "number": 2, "type": "medal", "amount": 5 },
+  { "number": 3, "type": "medal", "amount": 10 },
+  { "number": 4, "type": "medal", "amount": 15 },
+  { "number": 5, "type": "medal", "amount": 20 },
+  { "number": 6, "type": "medal", "amount": 25 },
+  { "number": 7, "type": "medal", "amount": 30 },
+  { "number": 8, "type": "medal", "amount": 35 },
+  { "number": 9, "type": "medal", "amount": 40 },
+  { "number": 10, "type": "medal", "amount": 45 }
+]
