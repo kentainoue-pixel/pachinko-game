@@ -31,3 +31,26 @@ th, td {
     padding: 8px;
     text-align: center;
 }
+
+/* スマホ用レイアウト（画面幅600px以下に適用） */
+@media screen and (max-width: 600px) {
+    button {
+        width: 100%;
+        font-size: 1.5em;
+        padding: 15px 0;
+    }
+
+    #buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #question {
+        font-size: 2.5em;
+    }
+
+    table, th, td {
+        font-size: 1em;
+    }
+}
