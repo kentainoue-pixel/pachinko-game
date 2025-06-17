@@ -1,110 +1,88 @@
-function loadQuestion() {
-    fetch("/get_question")
-        .then(response => response.json())
-        .then(data => {
-            const questionDiv = document.getElementById("question");
-            const buttonsDiv = document.getElementById("buttons");
-            const resultDiv = document.getElementById("result");
-            const drinkBtn = document.getElementById("drinkBtn");
-
-            buttonsDiv.innerHTML = "";
-            resultDiv.innerHTML = "";
-
-            const unit = data.type === "pachinko" ? "玉" : "枚";
-            questionDiv.textContent = `${data.value} ${unit}`;
-
-            fetch("/get_config")
-                .then(res => res.json())
-                .then(config => {
-                    const targetList = config.filter(item => item.type === data.type);
-                    const validOptions = targetList.filter(item => item.amount <= data.value);
-
-                    // 最適な正解（最大交換数の番号）
-                    let correct = null;
-                    if (validOptions.length > 0) {
-                        correct = validOptions.reduce((a, b) => a.amount > b.amount ? a : b);
-                    }
-
-                    for (const item of targetList) {
-                        const btn = document.createElement("button");
-                        btn.textContent = `${item.number} 番`;
-                        btn.onclick = () => {
-                            if (correct && item.number === correct.number) {
-                                resultDiv.textContent = "⭕ 正解！";
-                            } else {
-                                resultDiv.textContent = "❌ 不正解…";
-                            }
-                        };
-                        buttonsDiv.appendChild(btn);
-                    }
-
-                    drinkBtn.onclick = () => {
-                        if (data.type === "pachinko" && data.value >= 35) {
-                            resultDiv.textContent = "🥤 ドリンク交換OK";
-                        } else {
-                            resultDiv.textContent = "❌ ドリンク交換できません";
-                        }
-                    };
-                });
-        });
-}
-
-window.onload = () => {
+document.addEventListener("DOMContentLoaded", () => {
     loadQuestion();
+    loadConfig();
 
-    const form = document.getElementById("configForm");
-    form.onsubmit = (e) => {
+    document.getElementById("configForm").addEventListener("submit", (e) => {
         e.preventDefault();
-        const table = document.getElementById("configTable");
-        const rows = table.querySelectorAll("tr");
-        const newConfig = [];
-
-        rows.forEach(row => {
-            const number = parseInt(row.dataset.number);
-            const type = row.dataset.type;
-            const input = row.querySelector("input");
-            const amount = parseInt(input.value);
-            newConfig.push({ number, type, amount });
-        });
+        const data = [];
+        for (let i = 1; i <= 10; i++) {
+            const pInput = document.getElementById(`pachinko_${i}`);
+            const mInput = document.getElementById(`medal_${i}`);
+            if (pInput && mInput) {
+                data.push({ number: i, type: "pachinko", amount: parseInt(pInput.value) || 0 });
+                data.push({ number: i, type: "medal", amount: parseInt(mInput.value) || 0 });
+            }
+        }
 
         fetch("/save_config", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newConfig)
-        })
+            body: JSON.stringify(data)
+        }).then(() => loadConfig());
+    });
+
+    document.getElementById("drinkBtn").addEventListener("click", () => {
+        document.getElementById("result").textContent = "🥤 ドリンクは35玉です";
+    });
+});
+
+function loadQuestion() {
+    fetch("/get_question")
         .then(res => res.json())
         .then(data => {
-            alert("保存しました！");
+            document.getElementById("question").textContent = `${data.value}${data.type === "pachinko" ? "玉" : "枚"}`;
+            currentQuestion = data;
+            loadButtons(data);
         });
-    };
+}
 
+function loadButtons(data) {
+    fetch("/get_config")
+        .then(res => res.json())
+        .then(config => {
+            const buttonsDiv = document.getElementById("buttons");
+            buttonsDiv.innerHTML = "";
+
+            const filtered = config.filter(c => c.type === data.type);
+            const validOptions = filtered.filter(c => c.amount <= data.value);
+            const maxOption = validOptions.reduce((max, item) => item.amount > max.amount ? item : max, { amount: -1 });
+
+            for (let i = 1; i <= 10; i++) {
+                const option = filtered.find(c => c.number === i);
+                if (!option) continue;
+
+                const btn = document.createElement("button");
+                btn.textContent = `${i}番（${option.amount}${data.type === "pachinko" ? "玉" : "枚"}）`;
+                btn.onclick = () => {
+                    if (option.number === maxOption.number) {
+                        document.getElementById("result").textContent = "⭕ 正解！";
+                    } else {
+                        document.getElementById("result").textContent = "❌ 不正解...";
+                    }
+                };
+                buttonsDiv.appendChild(btn);
+            }
+        });
+}
+
+function loadConfig() {
     fetch("/get_config")
         .then(res => res.json())
         .then(config => {
             const table = document.getElementById("configTable");
             table.innerHTML = "";
+            for (let i = 1; i <= 10; i++) {
+                const row = document.createElement("tr");
+                const pConfig = config.find(c => c.number === i && c.type === "pachinko");
+                const mConfig = config.find(c => c.number === i && c.type === "medal");
 
-            config.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.dataset.number = item.number;
-                tr.dataset.type = item.type;
-
-                const tdNumber = document.createElement("td");
-                tdNumber.textContent = item.number;
-
-                const tdAmount = document.createElement("td");
-                const input = document.createElement("input");
-                input.type = "number";
-                input.value = item.amount;
-                tdAmount.appendChild(input);
-
-                const tdEmpty = document.createElement("td");
-                tdEmpty.textContent = item.type === "pachinko" ? "玉" : "枚";
-
-                tr.appendChild(tdNumber);
-                tr.appendChild(tdAmount);
-                tr.appendChild(tdEmpty);
-                table.appendChild(tr);
-            });
+                row.innerHTML = `
+                    <td>${i}</td>
+                    <td><input id="pachinko_${i}" type="number" value="${pConfig ? pConfig.amount : 0}"></td>
+                    <td><input id="medal_${i}" type="number" value="${mConfig ? mConfig.amount : 0}"></td>
+                    <td>玉/枚</td>
+                `;
+                table.appendChild(row);
+            }
         });
-};
+}

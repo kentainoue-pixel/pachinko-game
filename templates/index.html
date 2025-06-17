@@ -8,7 +8,7 @@
 <body>
     <div id="game">
         <h2>🎰 現在の提示数</h2>
-        <div id="question">読み込み中...</div>
+        <div id="question" class="large-text">読み込み中...</div>
         <div id="buttons"></div>
         <button id="drinkBtn">🥤 ドリンク交換</button>
         <div id="result"></div>
@@ -22,7 +22,12 @@
         <form id="configForm">
             <table>
                 <thead>
-                    <tr><th>番号</th><th>玉</th><th>メダル</th></tr>
+                    <tr>
+                        <th>番号</th>
+                        <th>パチンコ玉</th>
+                        <th>メダル</th>
+                        <th>単位</th>
+                    </tr>
                 </thead>
                 <tbody id="configTable"></tbody>
             </table>
@@ -33,5 +38,3 @@
     <script src="/static/script.js"></script>
 </body>
 </html>
-
-
