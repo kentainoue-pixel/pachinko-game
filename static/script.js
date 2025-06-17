@@ -52,7 +52,7 @@ function loadButtons(data) {
                 if (!option) continue;
 
                 const btn = document.createElement("button");
-                btn.textContent = `${i}番（${option.amount}${data.type === "pachinko" ? "玉" : "枚"}）`;
+                btn.textContent = `${i}番`;
                 btn.onclick = () => {
                     if (option.number === maxOption.number) {
                         document.getElementById("result").textContent = "⭕ 正解！";
