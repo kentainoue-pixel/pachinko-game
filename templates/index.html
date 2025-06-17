@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>端玉案内学習ゲーム</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="game">
+        <h2>🎰 現在の提示数</h2>
+        <div id="question">読み込み中...</div>
+        <div id="buttons"></div>
+        <button id="drinkBtn">🥤 ドリンク交換</button>
+        <div id="result"></div>
+        <button onclick="loadQuestion()">🔄 次の問題へ</button>
+    </div>
+
+    <hr>
+
+    <div id="settings">
+        <h2>⚙ 景品設定</h2>
+        <form id="configForm">
+            <table>
+                <thead>
+                    <tr><th>番号</th><th>玉</th><th>メダル</th></tr>
+                </thead>
+                <tbody id="configTable"></tbody>
+            </table>
+            <button type="submit">💾 保存</button>
+        </form>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
+
+
