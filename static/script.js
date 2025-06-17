@@ -22,8 +22,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("drinkBtn").addEventListener("click", () => {
-        document.getElementById("result").textContent = "🥤 ドリンクは35玉です";
-    });
+    if (
+        (currentQuestion.type === "pachinko" && currentQuestion.value >= 35) ||
+        (currentQuestion.type === "medal" && currentQuestion.value >= 7)
+    ) {
+        document.getElementById("result").textContent = "🥤 ドリンク交換が可能です！";
+    } else {
+        document.getElementById("result").textContent = "❌ ドリンク交換できません。";
+    }
+});
+
 });
 
 function loadQuestion() {
