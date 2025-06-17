@@ -1,90 +1,50 @@
-let currentQuestion = null;
-let config = null;
+function loadQuestion() {
+    fetch("/get_question")
+        .then(response => response.json())
+        .then(data => {
+            const questionDiv = document.getElementById("question");
+            const buttonsDiv = document.getElementById("buttons");
+            const resultDiv = document.getElementById("result");
+            const drinkBtn = document.getElementById("drinkBtn");
 
-async function loadQuestion() {
-    const res = await fetch("/get_question");
-    currentQuestion = await res.json();
-    document.getElementById("result").innerText = "";
-    renderQuestion();
+            buttonsDiv.innerHTML = "";
+            resultDiv.innerHTML = "";
+
+            const unit = data.type === "pachinko" ? "玉" : "枚";
+            questionDiv.textContent = `${data.value} ${unit}`;
+
+            fetch("/get_config")
+                .then(res => res.json())
+                .then(config => {
+                    const targetList = config.filter(item => item.type === data.type);
+                    const validOptions = targetList.filter(item => item.amount <= data.value);
+
+                    // 最適な正解（最大値）を選ぶ
+                    let correct = null;
+                    if (validOptions.length > 0) {
+                        correct = validOptions.reduce((a, b) => a.amount > b.amount ? a : b);
+                    }
+
+                    for (const item of targetList) {
+                        const btn = document.createElement("button");
+                        btn.textContent = `${item.number} 番`;
+                        btn.onclick = () => {
+                            if (correct && item.number === correct.number) {
+                                resultDiv.textContent = "⭕ 正解！";
+                            } else {
+                                resultDiv.textContent = "❌ 不正解…";
+                            }
+                        };
+                        buttonsDiv.appendChild(btn);
+                    }
+
+                    drinkBtn.onclick = () => {
+                        if (data.type === "pachinko" && data.value >= 35) {
+                            resultDiv.textContent = "🥤 ドリンク交換OK";
+                        } else {
+                            resultDiv.textContent = "❌ ドリンク交換できません";
+                        }
+                    };
+                });
+        });
 }
-
-async function loadConfig() {
-    const res = await fetch("/get_config");
-    config = await res.json();
-    renderConfigTable();
-}
-
-function renderQuestion() {
-    const q = currentQuestion;
-    document.getElementById("question").innerText = `${q.value}${q.type === "pachinko" ? "玉" : "枚"}`;
-    const btns = document.getElementById("buttons");
-    btns.innerHTML = "";
-
-    for (let prize of config.prizes) {
-        const btn = document.createElement("button");
-        btn.innerText = `${prize.number}番`;
-        btn.onclick = () => checkAnswer(prize.number);
-        btns.appendChild(btn);
-    }
-
-    const drinkBtn = document.getElementById("drinkBtn");
-    drinkBtn.disabled = !(q.type === "pachinko" && q.value >= config.drink.pachinko);
-}
-
-function checkAnswer(selected) {
-    const { type, value } = currentQuestion;
-    let max = 0;
-
-    for (let prize of config.prizes) {
-        const cost = type === "pachinko" ? prize.pachinko : prize.medal;
-        if (value >= cost) {
-            max = prize.number;
-        } else {
-            break;
-        }
-    }
-
-    const result = document.getElementById("result");
-    if (selected <= max) {
-        result.innerText = "✅ 正解！";
-    } else {
-        result.innerText = `❌ 不正解。案内できるのは ${max}番までです。`;
-    }
-}
-
-function renderConfigTable() {
-    const tbody = document.getElementById("configTable");
-    tbody.innerHTML = "";
-    for (let prize of config.prizes) {
-        tbody.innerHTML += `
-            <tr>
-                <td>${prize.number}</td>
-                <td><input type="number" name="pachinko_${prize.number}" value="${prize.pachinko}" min="0"></td>
-                <td><input type="number" name="medal_${prize.number}" value="${prize.medal}" min="0"></td>
-            </tr>
-        `;
-    }
-}
-
-document.getElementById("configForm").onsubmit = async function(e) {
-    e.preventDefault();
-    const form = new FormData(e.target);
-    for (let prize of config.prizes) {
-        prize.pachinko = Number(form.get(`pachinko_${prize.number}`));
-        prize.medal = Number(form.get(`medal_${prize.number}`));
-    }
-
-    await fetch("/save_config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config)
-    });
-
-    alert("保存しました！");
-    loadQuestion();
-};
-
-window.onload = async () => {
-    await loadConfig();
-    await loadQuestion();
-};
